@@ -55,7 +55,7 @@ jobs:
       - name: Read current mod version
         id: read_version
         run: |
-          mod_version=$(grep "modVersion" gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
+          mod_version=$(grep "mod_version" gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
           echo "Current mod version: $mod_version"
           if [ "$mod_version" == "${{inputs.version}}" ]; then
             echo "UPDATED=true" >> $GITHUB_ENV
@@ -84,7 +84,7 @@ jobs:
 
       - name: Set version
         if: env.UPDATED == 'false' # only change new version if it's not already updated
-        run: sed -i "s/modVersion.*=.*/modVersion = ${{ github.event.inputs.version }}/g" gradle.properties
+        run: sed -i "s/mod_version.*=.*/mod_version = ${{ github.event.inputs.version }}/g" gradle.properties
 
       - name: Commit and push gradle.properties
         if: env.UPDATED == 'false' # only push new version if it's not already updated
