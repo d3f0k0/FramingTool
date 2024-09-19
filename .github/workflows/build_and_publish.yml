@@ -50,7 +50,7 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4.1.7
-
+        with: ${{ secrets.PAT }}
       - name: Read current mod version
         id: read_version
         run: |
