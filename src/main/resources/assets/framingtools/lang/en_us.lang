@@ -1,0 +1,5 @@
+item.framingtools.hand_framing_tool.name=Hand Framing Tool
+tooltip.framingtools.hand_framing_tool.not_set=Put this tool in a Framing Table or a Crafting Table to set its Framing Data!
+tooltip.framingtools.hand_framing_tool.side=Side: %s
+tooltip.framingtools.hand_framing_tool.trim=Trim: %s
+tooltip.framingtools.hand_framing_tool.front=Front: %s

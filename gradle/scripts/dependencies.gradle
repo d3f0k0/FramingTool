@@ -59,4 +59,11 @@ dependencies {
     // implementation ('com.google.code.gson:gson:2.8.6') {
     //     transitive = false
     // }
+
+    implementation rfg.deobf("curse.maven:had-enough-items-557549:5726160")
+
+    implementation rfg.deobf("curse.maven:storage-drawers-223852:4655859")
+    implementation rfg.deobf("curse.maven:framed-compacting-drawers-376351:3015136")
+
+    implementation rfg.deobf("curse.maven:chameleon-230497:2450900")
 }
