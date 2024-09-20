@@ -60,7 +60,7 @@ dependencies {
     //     transitive = false
     // }
 
-    implementation rfg.deobf("curse.maven:had-enough-items-557549:5726160")
+    runtimeOnly rfg.deobf("curse.maven:had-enough-items-557549:5726160")
 
     implementation rfg.deobf("curse.maven:storage-drawers-223852:4655859")
     implementation rfg.deobf("curse.maven:framed-compacting-drawers-376351:3015136")

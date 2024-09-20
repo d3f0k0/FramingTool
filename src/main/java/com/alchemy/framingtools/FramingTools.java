@@ -18,7 +18,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = Tags.MOD_ID, name = Tags.MOD_NAME, version = Tags.VERSION, dependencies = "required-after:jei@[4.15.0,);")
+@Mod(modid = Tags.MOD_ID, name = Tags.MOD_NAME, version = Tags.VERSION, dependencies = "required-after:storagedrawers;")
 @Mod.EventBusSubscriber(modid = Values.FRAMING_TOOLS_MODID)
 public class FramingTools {
 

@@ -3,6 +3,8 @@
 # Then it generates a log, based on commits.
 # After that builds a jar and uploads it to curseforge/modrinth/GitHub releases
 
+#Copied from Groovyscript workflow
+
 name: Build and Publish mod
 
 on:
@@ -105,8 +107,8 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4.2.1
         with:
-          distribution: 'temurin'
-          java-version: '16'
+          distribution: 'zulu'
+          java-version: '17'
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew

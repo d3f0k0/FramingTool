@@ -8,6 +8,7 @@ import java.util.List;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 
+// Copied from NomiLabs
 @SuppressWarnings("unused")
 public class Translate {
 
