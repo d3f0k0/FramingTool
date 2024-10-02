@@ -1,6 +1,5 @@
 # Standalone Hand framing tool
 
-  
 Hand framing tool standalone, separated from Nomi Labs
 
  
@@ -14,5 +13,5 @@ Also right click to a normal drawer with loaded sticks, hand framing tool can tu
 ## CREDITS:
 
 Ideas, Code and assets come from [Nomi Labs](https://www.curseforge.com/minecraft/mc-mods/nomi-labs) mod by [IntegerLimit](https://www.curseforge.com/members/integerlimit/projects).
-
+Initial JEI Code come from [Quark](https://www.curseforge.com/minecraft/mc-mods/quark)
 Github Workflow come from [Groovyscript](https://www.curseforge.com/minecraft/mc-mods/groovyscript)
