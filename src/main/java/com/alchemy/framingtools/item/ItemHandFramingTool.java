@@ -1,8 +1,10 @@
 package com.alchemy.framingtools.item;
 
+import com.alchemy.framingtools.FramingToolConfig;
 import com.alchemy.framingtools.FramingTools;
 import com.alchemy.framingtools.item.registry.FramingToolsItem;
 import com.alchemy.framingtools.util.Values;
+import com.alchemy.framingtools.util.helper.ItemNBTHelper;
 import com.jaquadro.minecraft.storagedrawers.api.storage.INetworked;
 import com.jaquadro.minecraft.storagedrawers.api.storage.attribute.IFrameable;
 import com.jaquadro.minecraft.storagedrawers.block.BlockCompDrawers;
@@ -51,6 +53,12 @@ public class ItemHandFramingTool extends Item implements IFrameable {
     public static final String MAT_TRIM_TAG = "MatT";
     public static final String MAT_FRONT_TAG = "MatF";
 
+    //Hard mode
+    public static final String STICK = "Stick";
+    public static final String MAT_SIDE_AMOUNT = "AmountS";
+    public static final String MAT_TRIM_AMOUNT = "AmountT";
+    public static final String MAT_FRONT_AMOUNT  = "AmountF";
+
     public ItemHandFramingTool(ResourceLocation rl, CreativeTabs tab) {
         setMaxStackSize(1);
         setCreativeTab(tab);
@@ -65,23 +73,52 @@ public class ItemHandFramingTool extends Item implements IFrameable {
     public void addInformation(@NotNull ItemStack stack, @Nullable World worldIn, @NotNull List<String> tooltip,
                                @NotNull ITooltipFlag flagIn) {
         NBTTagCompound tagCompound = stack.getTagCompound();
-
-        if (tagCompound == null || getItemStackFromKey(tagCompound, MAT_SIDE_TAG).isEmpty()) {
+        // An abomination for checking not set
+        if (notSetCondition(stack)) {
             tooltip.add(translate("tooltip.framingtools.hand_framing_tool.not_set"));
             return;
         }
 
-        addTooltipItem(tooltip, "tooltip.framingtools.hand_framing_tool.side",
-                getItemStackFromKey(tagCompound, MAT_SIDE_TAG));
-        addTooltipItem(tooltip, "tooltip.framingtools.hand_framing_tool.trim",
-                getItemStackFromKey(tagCompound, MAT_TRIM_TAG));
-        addTooltipItem(tooltip, "tooltip.framingtools.hand_framing_tool.front",
-                getItemStackFromKey(tagCompound, MAT_FRONT_TAG));
+        if (FramingToolConfig.isHardMode) {
+            if (tagCompound.getInteger("Stick") > 0) {
+                tooltip.add(translate("tooltip.framingtools.hand_framing_tool.sticks_hard", tagCompound.getInteger(STICK)));
+            } else {
+                addTooltipItemHard(tooltip, "tooltip.framingtools.hand_framing_tool.side_hard",
+                        getItemStackFromKey(tagCompound, MAT_SIDE_TAG), tagCompound.getInteger(MAT_SIDE_AMOUNT));
+                addTooltipItemHard(tooltip, "tooltip.framingtools.hand_framing_tool.trim_hard",
+                        getItemStackFromKey(tagCompound, MAT_TRIM_TAG), tagCompound.getInteger(MAT_TRIM_AMOUNT));
+                addTooltipItemHard(tooltip, "tooltip.framingtools.hand_framing_tool.front_hard",
+                        getItemStackFromKey(tagCompound, MAT_FRONT_TAG), tagCompound.getInteger(MAT_FRONT_AMOUNT));
+
+            }
+        } else {
+            addTooltipItem(tooltip, "tooltip.framingtools.hand_framing_tool.side",
+                    getItemStackFromKey(tagCompound, MAT_SIDE_TAG));
+            addTooltipItem(tooltip, "tooltip.framingtools.hand_framing_tool.trim",
+                    getItemStackFromKey(tagCompound, MAT_TRIM_TAG));
+            addTooltipItem(tooltip, "tooltip.framingtools.hand_framing_tool.front",
+                    getItemStackFromKey(tagCompound, MAT_FRONT_TAG));
+        }
+    }
+
+    private boolean notSetCondition(ItemStack stack) {
+        NBTTagCompound tagCompound = stack.getTagCompound();
+        if (FramingToolConfig.isHardMode) {
+            return tagCompound == null // Null Tag
+                    || ((getItemStackFromKey(tagCompound, MAT_SIDE_TAG).isEmpty() || tagCompound.getInteger(MAT_SIDE_AMOUNT) == 0) // empty side or 0 amount size
+                    && (tagCompound.getInteger(STICK) == 0 )); // stick is 0
+        } else {
+            return tagCompound == null || getItemStackFromKey(tagCompound, MAT_SIDE_TAG).isEmpty();
+        }
     }
 
     @SideOnly(Side.CLIENT)
     private void addTooltipItem(@NotNull List<String> tooltip, String translationKey, ItemStack stack) {
         tooltip.add(translate(translationKey, stack.isEmpty() ? "-" : stack.getDisplayName()));
+    }
+    @SideOnly(Side.CLIENT)
+    private void addTooltipItemHard(@NotNull List<String> tooltip, String translationKey, ItemStack stack, int amount) {
+        tooltip.add(translate(translationKey, (stack.isEmpty() || amount == 0) ? "- " : stack.getDisplayName(), amount));
     }
 
     @Override
@@ -104,44 +141,91 @@ public class ItemHandFramingTool extends Item implements IFrameable {
         actionResult = EnumActionResult.FAIL;
 
         ItemStack tool = player.getHeldItem(hand);
-
-        // Check if we should make this block a framed one
-        if (!isDecorating(Objects.requireNonNull(block.getRegistryName()))) {
-            // Make it framed
-            var framedResult = makeFramedState(world, pos);
-            if (framedResult != null) return framedResult;
-
-            // This should be success, if we framed but not decorated
-            actionResult = EnumActionResult.SUCCESS;
-        }
-
         NBTTagCompound tagCompound = tool.getTagCompound();
 
-        if (tagCompound == null)
-            return actionResult;
+        if (FramingToolConfig.isHardMode) {
+            // Hard mode logic
+            if (tagCompound == null)
+                return actionResult;
 
-        // Get Decorate Info
-        ItemStack matS, matF, matT;
+            ItemStack matS, matF, matT;
+            int amountS, amountF, amountT;
+            matS = getItemStackFromKey(tagCompound, MAT_SIDE_TAG);
+            amountS = tagCompound.getInteger(MAT_SIDE_AMOUNT);
+            if (matS.isEmpty() || amountS == 0) {
+                // Framing ONLY IF side is empty
+                if (!isDecorating(Objects.requireNonNull(block.getRegistryName())) && tagCompound.getInteger(STICK) > 0) {
+                    ItemNBTHelper.setInt(tool, STICK, tagCompound.getInteger(STICK) - 1);
+                    // Make it framed
+                    var framedResult = makeFramedState(world, pos);
+                    if (framedResult != null) return framedResult;
+                    // This should be success, if we framed but not decorated
+                    actionResult = EnumActionResult.SUCCESS;
+                }
+                return actionResult;
+            } else {
+                if (!isDecorating(Objects.requireNonNull(block.getRegistryName()))) {
+                    var framedResult = makeFramedState(world, pos);
+                    if (framedResult != null) return framedResult;
+                }
+            }
+            matT = getItemStackFromKey(tagCompound, MAT_TRIM_TAG);
+            amountT = tagCompound.getInteger(MAT_TRIM_AMOUNT);
+            matF = getItemStackFromKey(tagCompound, MAT_FRONT_TAG);
+            amountF = tagCompound.getInteger(MAT_FRONT_AMOUNT);
+            // Decorate
+            MaterialData materialData = getMaterialData(world, pos);
+            if (materialData != null) {
+                if (amountS > 0) {
+                    materialData.setSide(matS.copy());
+                    ItemNBTHelper.setInt(tool, MAT_SIDE_AMOUNT, amountS - 1);
+                }
+                if (amountT > 0) {
+                    materialData.setTrim(matT.copy());
+                    ItemNBTHelper.setInt(tool, MAT_TRIM_AMOUNT, amountT - 1);
+                }
+                if (amountF > 0) {
+                    materialData.setFront(matF.copy());
+                    ItemNBTHelper.setInt(tool, MAT_FRONT_AMOUNT, amountF - 1);
+                }
+            }
+            // Reload Block
+            world.markBlockRangeForRenderUpdate(pos, pos);
 
-        matS = getItemStackFromKey(tagCompound, MAT_SIDE_TAG);
-        if (matS.isEmpty())
-            return actionResult;
+            return EnumActionResult.SUCCESS;
 
-        matT = getItemStackFromKey(tagCompound, MAT_TRIM_TAG);
-        matF = getItemStackFromKey(tagCompound, MAT_FRONT_TAG);
-
-        // Decorate
-        MaterialData materialData = getMaterialData(world, pos);
-        if (materialData != null) {
-            materialData.setSide(matS.copy());
-            materialData.setTrim(matT.copy());
-            materialData.setFront(matF.copy());
+        } else {
+            // Check if we should make this block a framed one
+            if (!isDecorating(Objects.requireNonNull(block.getRegistryName()))) {
+                // Make it framed
+                var framedResult = makeFramedState(world, pos);
+                if (framedResult != null) return framedResult;
+                // This should be success, if we framed but not decorated
+                actionResult = EnumActionResult.SUCCESS;
+            }
+            if (tagCompound == null)
+                return actionResult;
+            // Get Decorate Info
+            ItemStack matS, matF, matT;
+            matS = getItemStackFromKey(tagCompound, MAT_SIDE_TAG);
+            if (matS.isEmpty()) {
+                return actionResult;
+            }
+            matT = getItemStackFromKey(tagCompound, MAT_TRIM_TAG);
+            matF = getItemStackFromKey(tagCompound, MAT_FRONT_TAG);
+            // Decorate
+            MaterialData materialData = getMaterialData(world, pos);
+            if (materialData != null) {
+                materialData.setSide(matS.copy());
+                materialData.setTrim(matT.copy());
+                materialData.setFront(matF.copy());
+            }
+            // Reload Block
+            world.markBlockRangeForRenderUpdate(pos, pos);
+            return EnumActionResult.SUCCESS;
         }
 
-        // Reload Block
-        world.markBlockRangeForRenderUpdate(pos, pos);
 
-        return EnumActionResult.SUCCESS;
     }
 
     private boolean isDecorating(ResourceLocation registryName) {
@@ -263,7 +347,7 @@ public class ItemHandFramingTool extends Item implements IFrameable {
         return null;
     }
 
-    private ItemStack getItemStackFromKey(NBTTagCompound tagCompound, String key) {
+    public static ItemStack getItemStackFromKey(NBTTagCompound tagCompound, String key) {
         if (!tagCompound.hasKey(key))
             return ItemStack.EMPTY;
         else
@@ -275,14 +359,26 @@ public class ItemHandFramingTool extends Item implements IFrameable {
         ItemStack stack = new ItemStack(FramingToolsItem.HAND_FRAMING_TOOL, 1);
         NBTTagCompound compound = new NBTTagCompound();
 
-        if (!matSide.isEmpty())
+        if (!matSide.isEmpty()) {
             compound.setTag(MAT_SIDE_TAG, getMaterialTag(matSide));
+            if (FramingToolConfig.isHardMode) {
+                compound.setInteger(MAT_SIDE_AMOUNT, ItemNBTHelper.getInt(itemStack, MAT_SIDE_AMOUNT, 0) + 1);
+            }
+        }
 
-        if (!matTrim.isEmpty())
+        if (!matTrim.isEmpty()) {
             compound.setTag(MAT_TRIM_TAG, getMaterialTag(matTrim));
+            if (FramingToolConfig.isHardMode) {
+                compound.setInteger(MAT_TRIM_AMOUNT, ItemNBTHelper.getInt(itemStack, MAT_TRIM_AMOUNT, 0) + 1);
+            }
+        }
 
-        if (!matFront.isEmpty())
+        if (!matFront.isEmpty()) {
             compound.setTag(MAT_FRONT_TAG, getMaterialTag(matFront));
+            if (FramingToolConfig.isHardMode) {
+                compound.setInteger(MAT_FRONT_AMOUNT, ItemNBTHelper.getInt(itemStack, MAT_FRONT_TAG, 0) + 1);
+            }
+        }
 
         stack.setTagCompound(compound);
         return stack;

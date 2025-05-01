@@ -42,5 +42,6 @@ dependencies {
     implementation rfg.deobf("curse.maven:framed-compacting-drawers-376351:3015136")
     implementation rfg.deobf("curse.maven:chameleon-230497:2450900")
 
+    // to add advance item view
     runtimeOnly rfg.deobf("curse.maven:actually-additions-228404:3117927")
 }

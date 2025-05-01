@@ -19,6 +19,16 @@ public class FramingToolConfig {
     @Config.Comment("Set Front material for example recipe. Format: modid:blockname:metadata")
     public static String frontMaterial = "minecraft:concrete:1";
 
+    @Config.Comment({"Enable Harder Hand framing tools",
+            "This will made hand framing tool require stick to frame a drawer",
+            "also consume every block for decoration, similar to Nomifactory original implementation"})
+    public static Boolean isHardMode = true;
+
+    @Config.Comment({"Enable Retaining Item",
+            "This will made framing recipe keep its framing block",
+            "Enable hard mode Will ignore this config option"})
+    public static Boolean keepRemainingItem = false;
+
     @Mod.EventBusSubscriber(modid = Values.FRAMING_TOOLS_MODID)
     private static class EventHandler {
         @SubscribeEvent

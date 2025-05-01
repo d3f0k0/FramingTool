@@ -59,12 +59,6 @@ public class ExampleRecipeWrapper implements IShapedCraftingRecipeWrapper {
 
     }
 
-    //Might delete this (this code is remenant from the copied quark elytra code)
-//    @Override
-//    public void drawInfo(Minecraft minecraft, int recipeWidth, int recipeHeight, int mouseX, int mouseY) {
-//        minecraft.fontRenderer.drawString("Example", 60, 46, Color.gray.getRGB());
-//    }
-
     public static ItemStack addNBT(ItemStack stack, boolean trim, boolean front) throws NBTException {
         var sideStack = sideMaterial;
         var trimStack = trim ? trimMaterial : ItemStack.EMPTY;

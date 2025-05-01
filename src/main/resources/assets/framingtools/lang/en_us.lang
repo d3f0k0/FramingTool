@@ -4,6 +4,11 @@ tooltip.framingtools.hand_framing_tool.side=Side: %s
 tooltip.framingtools.hand_framing_tool.trim=Trim: %s
 tooltip.framingtools.hand_framing_tool.front=Front: %s
 
+tooltip.framingtools.hand_framing_tool.side_hard=Side: %s, Amount: %s
+tooltip.framingtools.hand_framing_tool.trim_hard=Trim: %s, Amount: %s
+tooltip.framingtools.hand_framing_tool.front_hard=Front: %s, Amount: %s
+tooltip.framingtools.hand_framing_tool.sticks_hard=Framing Amount: %s
+
 tooltip.framingtools.hand_framing_tool.recipe_tool=§5Frame your Hand Framing Tool by Hand!§r
 tooltip.framingtools.hand_framing_tool.recipe_drawer=§5Frame your Drawers by Hand!§r
 tooltip.framingtools.hand_framing_tool.recipe_top_left=§5Top Left: §oSide§r

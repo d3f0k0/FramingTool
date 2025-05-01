@@ -1,6 +1,7 @@
 package com.alchemy.framingtools;
 
 import com.alchemy.framingtools.item.registry.FramingToolsItem;
+import com.alchemy.framingtools.recipe.AddStickRecipe;
 import com.alchemy.framingtools.recipe.HandFramingRecipe;
 import com.alchemy.framingtools.util.Values;
 import net.minecraft.item.Item;
@@ -30,7 +31,6 @@ public class FramingTools {
      */
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        LOGGER.info("Hello From {}!", Tags.MODNAME);
         FramingToolsItem.preInit();
     }
 
@@ -43,6 +43,7 @@ public class FramingTools {
     @SubscribeEvent
     public static void registerRecipes(RegistryEvent.Register<IRecipe> event) {
         event.getRegistry().register(new HandFramingRecipe( new ResourceLocation(Values.FRAMING_TOOLS_MODID, "hand_framing_recipe")));
+        event.getRegistry().register(new AddStickRecipe(new ResourceLocation(Values.FRAMING_TOOLS_MODID, "stick_adding_recipe")));
     }
 
     @SubscribeEvent

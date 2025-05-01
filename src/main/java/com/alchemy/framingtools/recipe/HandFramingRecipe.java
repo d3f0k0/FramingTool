@@ -1,8 +1,10 @@
 package com.alchemy.framingtools.recipe;
 
+import com.alchemy.framingtools.FramingToolConfig;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.crafting.IShapedRecipe;
@@ -131,4 +133,27 @@ public class HandFramingRecipe extends IForgeRegistryEntry.Impl<IRecipe> impleme
     public int getRecipeHeight() {
         return 2;
     }
+
+    @Override
+    @NotNull
+    public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv) {
+        NonNullList<ItemStack> ret = NonNullList.withSize(inv.getSizeInventory(), ItemStack.EMPTY);
+        if (FramingToolConfig.keepRemainingItem && !FramingToolConfig.isHardMode) {
+            for (int i = 0; i < inv.getWidth(); i++) {
+                for (int j = 0; j < inv.getHeight(); j++) {
+                    if (TileEntityFramingTable.isItemValidDrawer(inv.getStackInRowAndColumn(i, j))) {
+                        ItemStack topLeft = inv.getStackInRowAndColumn(i - 1, j - 1).copy(); // Side
+                        ItemStack topRight = inv.getStackInRowAndColumn(i, j - 1).copy(); // Trim
+                        ItemStack bottomLeft = inv.getStackInRowAndColumn(i - 1, j).copy(); // Front
+
+                        ret.set((j - 1)* inv.getHeight() + (i - 1), topLeft);
+                        ret.set((j - 1)* inv.getHeight() + i, topRight);
+                        ret.set( j * inv.getHeight() + (i - 1), bottomLeft);
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
 }
